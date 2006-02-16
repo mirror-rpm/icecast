@@ -27,7 +27,7 @@ case "$1" in
 	;;
   stop)
 	# Stop daemon.
-	echo -n $"Shutting icecast streaming daemon: "
+	echo -n $"Shutting down icecast streaming daemon: "
 	killproc icecast
 	RETVAL=$?
 	echo
