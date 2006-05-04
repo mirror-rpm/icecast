@@ -20,7 +20,7 @@ case "$1" in
   start)
 	# Start daemon.
 	echo -n $"Starting icecast streaming daemon: "
-	daemon /usr/bin/icecast -b -c /etc/icecast.xml
+	daemon "/usr/bin/icecast -b -c /etc/icecast.xml > /dev/null"
 	RETVAL=$?
 	echo
 	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/icecast

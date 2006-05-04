@@ -1,7 +1,7 @@
 Summary: ShoutCast compatible streaming media server
 Name: icecast
 Version: 2.3.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group: Applications/Multimedia
 License: GPL
 URL: http://www.icecast.org/
@@ -18,7 +18,7 @@ BuildRequires: automake
 BuildRequires: libvorbis-devel >= 1.0, libogg-devel >= 1.0, curl-devel >= 7.10.0
 BuildRequires: libxml2-devel, libxslt-devel, speex-devel
 # To be enabled as soon as Fedora's libtheora supports ogg_stream_init
-# BuidRequires: libtheora-devel >= 1.0
+BuildRequires: libtheora-devel >= 1.0
 
 Requires(pre): /usr/sbin/useradd
 Requires(post): /sbin/chkconfig
@@ -43,7 +43,8 @@ find -name "*.html" -or -name "*.jpg" -or -name "*.css" | xargs chmod 644
 %build
 # theora support is to be enabled as soon as Fedora's libtheora supports
 # ogg_stream_init
-%configure --disable-theora
+# --disable-theora
+%configure
 %{__make} %{?_smp_mflags}
 
 
@@ -89,6 +90,7 @@ if [ $1 = 0 ] ; then
 	userdel icecast >/dev/null 2>&1 || :
 fi
 
+
 %files
 %defattr(-,root,root)
 %doc AUTHORS COPYING NEWS ChangeLog
@@ -105,6 +107,9 @@ fi
 %dir %attr(-,icecast,icecast) %{_localstatedir}/run/icecast
 
 %changelog
+* Thu May 04 2006 Andreas Thienemann <andreas@bawue.net> 2.3.1-2
+- Enabled Theora Streaming
+
 * Fri Feb 03 2006 Andreas Thienemann <andreas@bawue.net> 2.3.1-1
 - Updated to icecast 2.3.1-1
 
