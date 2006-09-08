@@ -1,7 +1,7 @@
 Summary: ShoutCast compatible streaming media server
 Name: icecast
 Version: 2.3.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group: Applications/Multimedia
 License: GPL
 URL: http://www.icecast.org/
@@ -107,6 +107,9 @@ fi
 %dir %attr(-,icecast,icecast) %{_localstatedir}/run/icecast
 
 %changelog
+* Fri Sep 08 2006 Andreas Thienemann <andreas@bawue.net> - 2.3.1-3
+- FE6 Rebuild
+
 * Thu May 04 2006 Andreas Thienemann <andreas@bawue.net> 2.3.1-2
 - Enabled Theora Streaming
 
