@@ -7,7 +7,7 @@ License: GPLv2
 URL: http://www.icecast.org/
 Source0: http://downloads.xiph.org/releases/icecast/icecast-%{version}.tar.gz
 Source1: status3.xsl
-Source2: icecast.init
+Source2: icecast.service
 Source3: icecast.logrotate
 Source4: icecast.xml
 
@@ -17,11 +17,13 @@ BuildRequires: automake
 BuildRequires: libvorbis-devel >= 1.0, libogg-devel >= 1.0, curl-devel >= 7.10.0
 BuildRequires: libxml2-devel, libxslt-devel, speex-devel, libtheora-devel >= 1.0
 BuildRequires: openssl-devel
+BuildRequires: systemd-units
 
 Requires(pre): /usr/sbin/useradd
-Requires(post): /sbin/chkconfig
-Requires(preun): /sbin/chkconfig
-Requires(preun): /sbin/service
+Requires(post): systemd-sysv
+Requires(post): systemd-units
+Requires(preun): systemd-units
+Requires(postun): systemd-units
 
 
 %description
@@ -53,7 +55,7 @@ make install DESTDIR=%{buildroot}
 rm -rf %{buildroot}%{_datadir}/icecast/doc
 rm -rf %{buildroot}%{_docdir}/icecast
 install -D -m 644 %{SOURCE1} %{buildroot}%{_datadir}/icecast/web/status3.xsl
-install -D -m 755 %{SOURCE2} %{buildroot}%{_initrddir}/icecast
+install -D -m 644 %{SOURCE2} %{buildroot}%{_unitdir}/icecast.service
 install -D -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/icecast
 install -D -m 640 %{SOURCE4} %{buildroot}%{_sysconfdir}/icecast.xml
 install -D -m 644 debian/icecast2.1 %{buildroot}%{_mandir}/man1/icecast.1
@@ -67,23 +69,37 @@ mkdir -p %{buildroot}%{_localstatedir}/run/icecast
 
 
 %post
-/sbin/chkconfig --add icecast
+if [ $1 -eq 1 ] ; then
+    # Initial installation
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
 
 
 %preun
-if [ $1 = 0 ]; then
-        /sbin/service icecast stop >/dev/null 2>&1
-        /sbin/chkconfig --del icecast
+if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    /bin/systemctl --no-reload disable icecast.service > /dev/null 2>&1 || :
+    /bin/systemctl stop icecast.service > /dev/null 2>&1 || :
 fi
 
 
 %postun
-if [ "$1" -ge "1" ]; then
-        /sbin/service icecast condrestart >/dev/null 2>&1
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+    # Package upgrade, not uninstall
+    /bin/systemctl try-restart icecast.service >/dev/null 2>&1 || :
 fi
 if [ $1 = 0 ] ; then
 	userdel icecast >/dev/null 2>&1 || :
 fi
+
+
+%triggerun -- icecast < 2.3.2-7
+# Save the current service runlevel info
+/usr/bin/systemd-sysv-convert --save icecast >/dev/null 2>&1 ||:
+# Run these because the SysV package being removed won't do them
+/sbin/chkconfig --del icecast >/dev/null 2>&1 || :
+/bin/systemctl try-restart icecast.service >/dev/null 2>&1 || :
 
 
 %files
@@ -92,7 +108,7 @@ fi
 %doc conf/*.dist examples/icecast_auth-1.0.tar.gz
 %config(noreplace) %{_sysconfdir}/icecast.xml
 %{_sysconfdir}/logrotate.d/icecast
-%{_initrddir}/icecast
+%{_unitdir}/icecast.service
 %{_bindir}/icecast
 %{_datadir}/icecast
 %{_mandir}/man1/icecast.1.gz
@@ -102,6 +118,7 @@ fi
 %changelog
 * Fri Feb 24 2012 Petr Pisar <ppisar@redhat.com> - 2.3.2-7
 - Remove obsolete buildroot and defattr declarations from spec file
+- Move to systemd (bug #782149)
 
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.2-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
