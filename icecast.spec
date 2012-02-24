@@ -1,7 +1,7 @@
 Summary: ShoutCast compatible streaming media server
 Name: icecast
 Version: 2.3.2
-Release: 6%{?dist}
+Release: 7%{?dist}
 Group: Applications/Multimedia
 License: GPLv2
 URL: http://www.icecast.org/
@@ -10,7 +10,6 @@ Source1: status3.xsl
 Source2: icecast.init
 Source3: icecast.logrotate
 Source4: icecast.xml
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Provides: streaming-server
 
@@ -50,7 +49,6 @@ find -name "*.html" -or -name "*.jpg" -or -name "*.css" | xargs chmod 644
 
 
 %install
-rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 rm -rf %{buildroot}%{_datadir}/icecast/doc
 rm -rf %{buildroot}%{_docdir}/icecast
@@ -61,10 +59,6 @@ install -D -m 640 %{SOURCE4} %{buildroot}%{_sysconfdir}/icecast.xml
 install -D -m 644 debian/icecast2.1 %{buildroot}%{_mandir}/man1/icecast.1
 mkdir -p %{buildroot}%{_localstatedir}/log/icecast
 mkdir -p %{buildroot}%{_localstatedir}/run/icecast
-
-
-%clean 
-rm -rf %{buildroot}
 
 
 %pre
@@ -93,7 +87,6 @@ fi
 
 
 %files
-%defattr(-,root,root)
 %doc AUTHORS COPYING NEWS ChangeLog TODO
 %doc doc/*.html doc/*.jpg doc/*.css
 %doc conf/*.dist examples/icecast_auth-1.0.tar.gz
@@ -107,11 +100,14 @@ fi
 %dir %attr(-,icecast,icecast) %{_localstatedir}/run/icecast
 
 %changelog
+* Fri Feb 24 2012 Petr Pisar <ppisar@redhat.com> - 2.3.2-7
+- Remove obsolete buildroot and defattr declarations from spec file
+
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.2-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
 * Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.2-5
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+p Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
 * Wed Oct 21 2009 Andreas Thienemann <andreas@bawue.net> - 2.3.2-4
 - Added SSL support
