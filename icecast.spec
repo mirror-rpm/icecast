@@ -113,12 +113,13 @@ fi
 %{_datadir}/icecast
 %{_mandir}/man1/icecast.1.gz
 %dir %attr(-,icecast,icecast) %{_localstatedir}/log/icecast
-%dir %attr(-,icecast,icecast) %{_localstatedir}/run/icecast
 
 %changelog
 * Fri Feb 24 2012 Petr Pisar <ppisar@redhat.com> - 2.3.2-7
 - Remove obsolete buildroot and defattr declarations from spec file
 - Move to systemd (bug #782149)
+- Drop unneeded /var/run/icecast because of non-forking systemd unit
+  (bug #656601)
 
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.2-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
