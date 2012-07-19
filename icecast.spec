@@ -1,7 +1,7 @@
 Summary: ShoutCast compatible streaming media server
 Name: icecast
 Version: 2.3.2
-Release: 7%{?dist}
+Release: 8%{?dist}
 Group: Applications/Multimedia
 License: GPLv2
 URL: http://www.icecast.org/
@@ -115,6 +115,9 @@ fi
 %dir %attr(-,icecast,icecast) %{_localstatedir}/log/icecast
 
 %changelog
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.2-8
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Fri Feb 24 2012 Petr Pisar <ppisar@redhat.com> - 2.3.2-7
 - Remove obsolete buildroot and defattr declarations from spec file
 - Move to systemd (bug #782149)
