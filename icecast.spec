@@ -1,7 +1,7 @@
 Summary: ShoutCast compatible streaming media server
 Name: icecast
-Version: 2.3.2
-Release: 3%{?dist}
+Version: 2.3.3
+Release: 1%{?dist}
 Group: Applications/Multimedia
 License: GPLv2
 URL: http://www.icecast.org/
@@ -18,7 +18,7 @@ BuildRequires: automake
 BuildRequires: libvorbis-devel >= 1.0, libogg-devel >= 1.0, curl-devel >= 7.10.0
 BuildRequires: libxml2-devel, libxslt-devel, speex-devel
 # To be enabled as soon as Fedora's libtheora supports ogg_stream_init
-BuildRequires: libtheora-devel >= 1.0
+BuildRequires: libtheora-devel >= 1.0, openssl-devel
 
 Requires(pre): /usr/sbin/useradd
 Requires(post): /sbin/chkconfig
@@ -97,7 +97,7 @@ fi
 %doc doc/*.html
 %doc doc/*.jpg
 %doc doc/*.css
-%config(noreplace) %{_sysconfdir}/icecast.xml
+%config(noreplace) %attr(-,root,icecast) %{_sysconfdir}/icecast.xml
 %{_sysconfdir}/logrotate.d/icecast
 %{_initrddir}/icecast
 %{_bindir}/icecast
@@ -107,6 +107,9 @@ fi
 %dir %attr(-,icecast,icecast) %{_localstatedir}/run/icecast
 
 %changelog
+* Mon Oct 15 2012 Andreas Thienemann <andreas@bawue.net> - 2.3.3-1
+- Upgrade to new upstream release 2.3.3, fixing #831180, #797184, #768176 and #768175.
+
 * Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.2-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
