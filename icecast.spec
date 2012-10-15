@@ -1,7 +1,7 @@
 Summary: ShoutCast compatible streaming media server
 Name: icecast
-Version: 2.3.2
-Release: 8%{?dist}
+Version: 2.3.3
+Release: 1%{?dist}
 Group: Applications/Multimedia
 License: GPLv2
 URL: http://www.icecast.org/
@@ -69,26 +69,15 @@ mkdir -p %{buildroot}%{_localstatedir}/run/icecast
 
 
 %post
-if [ $1 -eq 1 ] ; then
-    # Initial installation
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-fi
+%systemd_post icecast.service
 
 
 %preun
-if [ $1 -eq 0 ] ; then
-    # Package removal, not upgrade
-    /bin/systemctl --no-reload disable icecast.service > /dev/null 2>&1 || :
-    /bin/systemctl stop icecast.service > /dev/null 2>&1 || :
-fi
+%systemd_preun icecast.service
 
 
 %postun
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    # Package upgrade, not uninstall
-    /bin/systemctl try-restart icecast.service >/dev/null 2>&1 || :
-fi
+%systemd_postun_with_restart icecast.service 
 if [ $1 = 0 ] ; then
 	userdel icecast >/dev/null 2>&1 || :
 fi
@@ -106,7 +95,7 @@ fi
 %doc AUTHORS COPYING NEWS ChangeLog TODO
 %doc doc/*.html doc/*.jpg doc/*.css
 %doc conf/*.dist examples/icecast_auth-1.0.tar.gz
-%config(noreplace) %{_sysconfdir}/icecast.xml
+%config(noreplace) %attr(-,root,icecast) %{_sysconfdir}/icecast.xml
 %{_sysconfdir}/logrotate.d/icecast
 %{_unitdir}/icecast.service
 %{_bindir}/icecast
@@ -115,6 +104,11 @@ fi
 %dir %attr(-,icecast,icecast) %{_localstatedir}/log/icecast
 
 %changelog
+* Sun Oct 14 2012 Andreas Thienemann <andreas@bawue.net> - 2.3.3-1
+- Upgrade to new upstream release 2.3.3, fixing #831180, #797184, #768176 and #768175.
+- Add systemd reload macro, fixing #814212.
+- F18 styled systemd macros, fixing #850153.
+
 * Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.2-8
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
@@ -128,7 +122,7 @@ fi
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
 * Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.2-5
-p Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
 * Wed Oct 21 2009 Andreas Thienemann <andreas@bawue.net> - 2.3.2-4
 - Added SSL support
