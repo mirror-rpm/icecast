@@ -1,7 +1,7 @@
 Summary: ShoutCast compatible streaming media server
 Name: icecast
-Version: 2.3.2
-Release: 4%{?dist}
+Version: 2.3.3
+Release: 1%{?dist}
 Group: Applications/Multimedia
 License: GPLv2
 URL: http://www.icecast.org/
@@ -16,8 +16,9 @@ Provides: streaming-server
 
 BuildRequires: automake
 BuildRequires: libvorbis-devel >= 1.0, libogg-devel >= 1.0, curl-devel >= 7.10.0
-BuildRequires: libxml2-devel, libxslt-devel, speex-devel, libtheora-devel >= 1.0
-BuildRequires: openssl-devel
+BuildRequires: libxml2-devel, libxslt-devel, speex-devel
+# To be enabled as soon as Fedora's libtheora supports ogg_stream_init
+BuildRequires: libtheora-devel >= 1.0, openssl-devel
 
 Requires(pre): /usr/sbin/useradd
 Requires(post): /sbin/chkconfig
@@ -40,12 +41,10 @@ find -name "*.html" -or -name "*.jpg" -or -name "*.css" | xargs chmod 644
 
 
 %build
-%configure \
-	--with-curl \
-	--with-openssl \
-	--with-ogg \
-	--with-theora \
-	--with-speex
+# theora support is to be enabled as soon as Fedora's libtheora supports
+# ogg_stream_init
+# --disable-theora
+%configure
 %{__make} %{?_smp_mflags}
 
 
@@ -94,10 +93,11 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS COPYING NEWS ChangeLog TODO
-%doc doc/*.html doc/*.jpg doc/*.css
-%doc conf/*.dist examples/icecast_auth-1.0.tar.gz
-%config(noreplace) %{_sysconfdir}/icecast.xml
+%doc AUTHORS COPYING NEWS ChangeLog
+%doc doc/*.html
+%doc doc/*.jpg
+%doc doc/*.css
+%config(noreplace) %attr(-,root,icecast) %{_sysconfdir}/icecast.xml
 %{_sysconfdir}/logrotate.d/icecast
 %{_initrddir}/icecast
 %{_bindir}/icecast
@@ -107,11 +107,8 @@ fi
 %dir %attr(-,icecast,icecast) %{_localstatedir}/run/icecast
 
 %changelog
-* Wed Oct 21 2009 Andreas Thienemann <andreas@bawue.net> - 2.3.2-4
-- Added SSL support
-- Added LSB header to the initscripts
-- Reworked config example to contain newest changes
-- Added alternative config files and authentication example
+* Mon Oct 15 2012 Andreas Thienemann <andreas@bawue.net> - 2.3.3-1
+- Upgrade to new upstream release 2.3.3, fixing #831180, #797184, #768176 and #768175.
 
 * Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.2-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
