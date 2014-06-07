@@ -1,7 +1,7 @@
 Summary: ShoutCast compatible streaming media server
 Name: icecast
 Version: 2.3.3
-Release: 3%{?dist}
+Release: 4%{?dist}
 Group: Applications/Multimedia
 License: GPLv2
 URL: http://www.icecast.org/
@@ -104,6 +104,9 @@ fi
 %dir %attr(-,icecast,icecast) %{_localstatedir}/log/icecast
 
 %changelog
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.3-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.3-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
