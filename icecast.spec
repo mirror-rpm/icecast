@@ -12,7 +12,7 @@
 
 Name:			icecast
 Version:		2.4.1
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		ShoutCast compatible streaming media server
 %{?el5:Group:		Applications/Multimedia}
 
@@ -178,6 +178,9 @@ fi
 
 
 %changelog
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Thu Dec 04 2014 Björn Esser <bjoern.esser@gmail.com> - 2.4.1-1
 - update new to release v2.4.1 (#1101950)
 - fix CVE-2014-9091 (#1168146, #1168147, #1168148, #1168149)
