@@ -11,8 +11,8 @@
 %{!?_pkgdocdir:%global _pkgdocdir	%{_docdir}/%{name}-%{version}}
 
 Name:			icecast
-Version:		2.4.1
-Release:		2%{?dist}
+Version:		2.4.2
+Release:		1%{?dist}
 Summary:		ShoutCast compatible streaming media server
 %{?el5:Group:		Applications/Multimedia}
 
@@ -107,6 +107,9 @@ find html/ -name 'Makefile*' | xargs %{__rm} -f
 	%{buildroot}%{_localstatedir}/run/%{name}	\
 	%{buildroot}%{_pkgdocdir}/{conf,examples}
 %{__cp} -a html/ AUTHORS ChangeLog COPYING NEWS TODO %{buildroot}%{_pkgdocdir}
+%if 0%{?fedora} >= 22 || 0%{?rhel} >= 8
+%{__rm} -f %{buildroot}%{_pkgdocdir}/COPYING
+%endif # 0%{?fedora} >= 22 || 0%{?rhel} >= 8
 %{__cp} -a conf/*.dist %{buildroot}%{_pkgdocdir}/conf
 %{__cp} -a examples/%{name}_auth-1.0.tar.gz %{buildroot}%{_pkgdocdir}/examples
 
@@ -162,7 +165,11 @@ fi
 %config(noreplace) %attr(-,root,%{name}) %{_sysconfdir}/%{name}.xml
 %dir %attr(-,%{name},%{name}) %{_localstatedir}/log/%{name}
 %doc %dir %{_pkgdocdir}
+%if 0%{?fedora} >= 22 || 0%{?rhel} >= 8
+%license COPYING
+%else  # 0%{?fedora} >= 22 || 0%{?rhel} >= 8
 %doc %{_pkgdocdir}/COPYING
+%endif # 0%{?fedora} >= 22 || 0%{?rhel} >= 8
 %{_bindir}/%{name}
 %{_datadir}/%{name}
 %{_sysconfdir}/logrotate.d/%{name}
@@ -174,10 +181,18 @@ fi
 %endif # 0%{?with_systemd}
 
 %files doc
+%if 0%{?fedora} >= 22 || 0%{?rhel} >= 8
+%license %{_datadir}/licenses/%{name}
+%endif # 0%{?fedora} >= 22 || 0%{?rhel} >= 8
 %doc %{_pkgdocdir}
 
 
 %changelog
+* Sat Jun 27 2015 Björn Esser <bjoern.esser@gmail.com> - 2.4.2-1
+- update to 2.4.2 (#1236296)
+- fix CVE-2015-3026 (#1210198, #1210199, #1210200)
+- use %%license on Fedora 22+
+
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
