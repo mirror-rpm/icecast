@@ -12,7 +12,7 @@
 
 Name:			icecast
 Version:		2.4.2
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		ShoutCast compatible streaming media server
 %{?el5:Group:		Applications/Multimedia}
 
@@ -188,6 +188,9 @@ fi
 
 
 %changelog
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.4.2-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2.4.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
