@@ -11,8 +11,8 @@
 %{!?_pkgdocdir:%global _pkgdocdir	%{_docdir}/%{name}-%{version}}
 
 Name:		icecast
-Version:	2.4.2
-Release:	7%{?dist}
+Version:	2.4.3
+Release:	1%{?dist}
 Summary:	ShoutCast compatible streaming media server
 
 License:	GPLv2+
@@ -172,6 +172,9 @@ fi
 
 
 %changelog
+* Sun Jan 28 2018 Björn Esser <besser82@fedoraproject.org> - 2.4.3-1
+- Update to v2.4.3 (#1303784)
+
 * Sun Jan 28 2018 Björn Esser <besser82@fedoraproject.org> - 2.4.2-7
 - Add Requires: mailcap (#1519830)
 
