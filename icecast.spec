@@ -1,51 +1,45 @@
 # This package builds a daemon-application,
-# thus we build with fully hardening.
+# thus we build with full hardening.
 %global _hardened_build 1
 
 # Systemd or SysV?
-%if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+%if 0%{?fedora} || 0%{?rhel} >= 7
 %global with_systemd 1
-%endif # 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+%endif # 0%{?fedora} || 0%{?rhel} >= 7
 
 # Setup _pkgdocdir if not defined already.
 %{!?_pkgdocdir:%global _pkgdocdir	%{_docdir}/%{name}-%{version}}
 
-Name:			icecast
-Version:		2.4.2
-Release:		5%{?dist}
-Summary:		ShoutCast compatible streaming media server
-%{?el5:Group:		Applications/Multimedia}
+Name:		icecast
+Version:	2.4.2
+Release:	6%{?dist}
+Summary:	ShoutCast compatible streaming media server
 
-License:		GPLv2+
-URL:			http://www.%{name}.org/
-Source0:		http://downloads.xiph.org/releases/%{name}/%{name}-%{version}.tar.gz
-Source1:		%{name}.init
-Source2:		%{name}.logrotate
-Source3:		%{name}.service
-Source4:		%{name}.xml
-Source5:		status3.xsl
+License:	GPLv2+
+URL:		http://www.%{name}.org/
+Source0:	http://downloads.xiph.org/releases/%{name}/%{name}-%{version}.tar.gz
+Source1:	%{name}.init
+Source2:	%{name}.logrotate
+Source3:	%{name}.service
+Source4:	%{name}.xml
+Source5:	status3.xsl
 
-%{?el5:BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)}
-BuildRequires:		automake
-BuildRequires:		curl-devel >= 7.10.0
-BuildRequires:		libogg-devel >= 1.0
-BuildRequires:		libtheora-devel >= 1.0
-BuildRequires:		libvorbis-devel >= 1.0
-BuildRequires:		libxml2-devel
-BuildRequires:		libxslt-devel
-BuildRequires:		openssl-devel
-BuildRequires:		speex-devel
+BuildRequires:	automake
+BuildRequires:	curl-devel >= 7.10.0
+BuildRequires:	libogg-devel >= 1.0
+BuildRequires:	libtheora-devel >= 1.0
+BuildRequires:	libvorbis-devel >= 1.0
+BuildRequires:	libxml2-devel
+BuildRequires:	libxslt-devel
+BuildRequires:	openssl-devel
+BuildRequires:	speex-devel
 
-Requires(pre):		/usr/sbin/useradd
-Requires(postun):	/usr/sbin/userdel
+Requires(pre):	shadow-utils
 
 %if 0%{?with_systemd}
-BuildRequires:		systemd-units
+BuildRequires:	systemd
 
-Requires(post):		systemd-sysv
-Requires(post):		systemd-units
-Requires(preun):	systemd-units
-Requires(postun):	systemd-units
+%{?systemd_requires}
 %else # 0%{?with_systemd}
 Requires(post):		/sbin/chkconfig
 Requires(preun):	/sbin/chkconfig
@@ -53,7 +47,7 @@ Requires(preun):	/sbin/service
 Requires(postun):	/sbin/service
 %endif # 0%{?with_systemd}
 
-Provides:		streaming-server
+Provides:	streaming-server
 
 %description
 Icecast is a streaming media server which currently supports
@@ -65,19 +59,18 @@ communication and interaction.
 
 
 %package doc
-Summary:		Documentation files for %{name}
-%{?el5:Group:		Documentation}
-%{!?el5:BuildArch:	noarch}
+Summary:	Documentation files for %{name}
+BuildArch:	noarch
 
 %description doc
 This package contains the documentation files for %{name}.
 
 
 %prep
-%setup -q
-find doc/ -type f | xargs chmod 0644
+%autosetup -p 1
+%{_bindir}/find doc/ -type f | xargs %{__chmod} 0644
 %{__cp} -a doc/ html/
-find html/ -name 'Makefile*' | xargs %{__rm} -f
+%{_bindir}/find html/ -name 'Makefile*' | xargs %{__rm} -f
 
 
 %build
@@ -87,40 +80,38 @@ find html/ -name 'Makefile*' | xargs %{__rm} -f
 	--with-ogg	\
 	--with-theora	\
 	--with-speex
-%{__make} %{?_smp_mflags}
+%make_build
 
 
 %install
-%{?el5:%{__rm} -rf %{buildroot}}
-%{__make} install DESTDIR=%{buildroot}
-%{__rm} -rf %{buildroot}%{_datadir}/%{name}/doc
-%{__rm} -rf %{buildroot}%{_docdir}/%{name}
+%make_install
+%{__rm} -fr %{buildroot}%{_datadir}/%{name}/doc
+%{__rm} -fr %{buildroot}%{_docdir}/%{name}
 %if 0%{?with_systemd}
-%{__install} -D -m 0644 %{SOURCE3} %{buildroot}%{_unitdir}/%{name}.service
+%{__install} -Dpm 0644 %{SOURCE3} %{buildroot}%{_unitdir}/%{name}.service
 %else # 0%{?with_systemd}
-%{__install} -D -m 0755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
+%{__install} -Dpm 0755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
 %endif # 0%{?with_systemd}
-%{__install} -D -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
-%{__install} -D -m 0640 %{SOURCE4} %{buildroot}%{_sysconfdir}/%{name}.xml
-%{__install} -D -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/%{name}/web/status3.xsl
+%{__install} -Dpm 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
+%{__install} -Dpm 0640 %{SOURCE4} %{buildroot}%{_sysconfdir}/%{name}.xml
+%{__install} -Dpm 0644 %{SOURCE5} %{buildroot}%{_datadir}/%{name}/web/status3.xsl
 %{__mkdir} -p %{buildroot}%{_localstatedir}/log/%{name}	\
 	%{buildroot}%{_localstatedir}/run/%{name}	\
 	%{buildroot}%{_pkgdocdir}/{conf,examples}
 %{__cp} -a html/ AUTHORS ChangeLog COPYING NEWS TODO %{buildroot}%{_pkgdocdir}
-%if 0%{?fedora} >= 22 || 0%{?rhel} >= 8
+%if 0%{?fedora} || 0%{?rhel} >= 7
 %{__rm} -f %{buildroot}%{_pkgdocdir}/COPYING
-%endif # 0%{?fedora} >= 22 || 0%{?rhel} >= 8
+%endif # 0%{?fedora} || 0%{?rhel} >= 7
 %{__cp} -a conf/*.dist %{buildroot}%{_pkgdocdir}/conf
 %{__cp} -a examples/%{name}_auth-1.0.tar.gz %{buildroot}%{_pkgdocdir}/examples
 
 
-%{?el5:%clean}
-%{?el5:%{__rm} -rf %{buildroot}}
-
-
 %pre
-/usr/sbin/useradd -M -r -d /usr/share/%{name} -s /sbin/nologin \
-	-c "%{name} streaming server" %{name} > /dev/null 2>&1 || :
+%{_bindir}/getent passwd %{name} >/dev/null ||					\
+	%{_sbindir}/useradd -M -r -d /usr/share/%{name} -s /sbin/nologin	\
+		-c "%{name} streaming server" %{name} > /dev/null 2>&1 || :
+exit 0
+
 
 %post
 %if 0%{?with_systemd}
@@ -128,6 +119,7 @@ find html/ -name 'Makefile*' | xargs %{__rm} -f
 %else # 0%{?with_systemd}
 /sbin/chkconfig --add %{name}
 %endif # 0%{?with_systemd}
+
 
 %preun
 %if 0%{?with_systemd}
@@ -139,6 +131,7 @@ if [ $1 = 0 ]; then
 fi
 %endif # 0%{?with_systemd}
 
+
 %postun
 %if 0%{?with_systemd}
 %systemd_postun_with_restart %{name}.service
@@ -147,29 +140,17 @@ if [ "$1" -ge "1" ]; then
 	/sbin/service %{name} condrestart >/dev/null 2>&1
 fi
 %endif # 0%{?with_systemd}
-if [ $1 = 0 ] ; then
-	/usr/sbin/userdel %{name} >/dev/null 2>&1 || :
-fi
-
-%if 0%{?with_systemd}
-%triggerun -- %{name} < 2.3.2-7
-# Save the current service runlevel info
-/usr/bin/systemd-sysv-convert --save %{name} >/dev/null 2>&1 ||:
-# Run these because the SysV package being removed won't do them
-/sbin/chkconfig --del %{name} >/dev/null 2>&1 || :
-/bin/systemctl try-restart %{name}.service >/dev/null 2>&1 || :
-%endif # 0%{?with_systemd}
 
 
 %files
 %config(noreplace) %attr(-,root,%{name}) %{_sysconfdir}/%{name}.xml
 %dir %attr(-,%{name},%{name}) %{_localstatedir}/log/%{name}
 %doc %dir %{_pkgdocdir}
-%if 0%{?fedora} >= 22 || 0%{?rhel} >= 8
+%if 0%{?fedora} || 0%{?rhel} >= 7
 %license COPYING
-%else  # 0%{?fedora} >= 22 || 0%{?rhel} >= 8
+%else  # 0%{?fedora} || 0%{?rhel} >= 7
 %doc %{_pkgdocdir}/COPYING
-%endif # 0%{?fedora} >= 22 || 0%{?rhel} >= 8
+%endif # 0%{?fedora} || 0%{?rhel} >= 7
 %{_bindir}/%{name}
 %{_datadir}/%{name}
 %{_sysconfdir}/logrotate.d/%{name}
@@ -180,14 +161,18 @@ fi
 %{_initrddir}/%{name}
 %endif # 0%{?with_systemd}
 
+
 %files doc
-%if 0%{?fedora} >= 22 || 0%{?rhel} >= 8
-%license %{_datadir}/licenses/%{name}
-%endif # 0%{?fedora} >= 22 || 0%{?rhel} >= 8
+%if 0%{?fedora} || 0%{?rhel} >= 7
+%license %{_datadir}/licenses/%{name}*
+%endif # 0%{?fedora} || 0%{?rhel} >= 7
 %doc %{_pkgdocdir}
 
 
 %changelog
+* Sun Jan 28 2018 Björn Esser <besser82@fedoraproject.org> - 2.4.2-6
+- Remove lots of old cruft
+
 * Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.4.2-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
