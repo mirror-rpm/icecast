@@ -12,7 +12,7 @@
 
 Name:		icecast
 Version:	2.4.2
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	ShoutCast compatible streaming media server
 
 License:	GPLv2+
@@ -33,6 +33,8 @@ BuildRequires:	libxml2-devel
 BuildRequires:	libxslt-devel
 BuildRequires:	openssl-devel
 BuildRequires:	speex-devel
+
+Requires:	mailcap
 
 Requires(pre):	shadow-utils
 
@@ -170,6 +172,9 @@ fi
 
 
 %changelog
+* Sun Jan 28 2018 Björn Esser <besser82@fedoraproject.org> - 2.4.2-7
+- Add Requires: mailcap (#1519830)
+
 * Sun Jan 28 2018 Björn Esser <besser82@fedoraproject.org> - 2.4.2-6
 - Remove lots of old cruft
 
