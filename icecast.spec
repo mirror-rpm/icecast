@@ -24,6 +24,7 @@ Source3:	%{name}.service
 Source4:	%{name}.xml
 Source5:	status3.xsl
 
+BuildRequires:  gcc
 BuildRequires:	automake
 BuildRequires:	curl-devel >= 7.10.0
 BuildRequires:	libogg-devel >= 1.0
