@@ -11,20 +11,40 @@
 %{!?_pkgdocdir:%global _pkgdocdir	%{_docdir}/%{name}-%{version}}
 
 Name:		icecast
-Version:	2.4.3
-Release:	3%{?dist}
+Version:	2.4.4
+Release:	1%{?dist}
 Summary:	ShoutCast compatible streaming media server
 
-License:	GPLv2+
+# admin/xspf.xsl:	GPLv2+
+# COPYING:		GPLv2 text
+# src/fserve.c:		GPLv2
+# src/thread/thread.c:	GPLv2+
+# src/avl/avl.c:	BSD
+# web/xml2json.xslt:	BSD
+## In doc package only:
+# examples/icecast_auth-1.0.tar.gz:
+#   config.guess:	GPLv2+
+#   configure:		FSFUL
+#   COPYING:		GPLv2 text
+#   install-sh:		MIT
+#   Makefile.in:	FSFULLR
+## Not in any binary package:
+# config.guess:		GPLv3+
+# configure:		FSFUL
+# doc/assets/img/Makefile.in:	FSFULLR
+# install-sh:		MIT
+License:	GPLv2+ and GPLv2 and BSD
 URL:		http://www.%{name}.org/
-Source0:	http://downloads.xiph.org/releases/%{name}/%{name}-%{version}.tar.gz
+Source0:	https://downloads.xiph.org/releases/%{name}/%{name}-%{version}.tar.gz
 Source1:	%{name}.init
 Source2:	%{name}.logrotate
 Source3:	%{name}.service
 Source4:	%{name}.xml
 Source5:	status3.xsl
 
-BuildRequires:  gcc
+BuildRequires:	coreutils
+BuildRequires:	findutils
+BuildRequires:	gcc
 BuildRequires:	automake
 BuildRequires:	curl-devel >= 7.10.0
 BuildRequires:	libogg-devel >= 1.0
@@ -63,6 +83,7 @@ communication and interaction.
 
 %package doc
 Summary:	Documentation files for %{name}
+License:	GPLv2+ and MIT and FSFULLR and FSFUL
 BuildArch:	noarch
 
 %description doc
@@ -77,12 +98,19 @@ This package contains the documentation files for %{name}.
 
 
 %build
-%configure		\
-	--with-curl	\
-	--with-openssl	\
-	--with-ogg	\
-	--with-theora	\
-	--with-speex
+%configure \
+	--with-curl \
+	--enable-largefile \
+	--enable-maintainer-mode \
+	--with-ogg \
+	--with-openssl \
+	--enable-shared \
+	--disable-silent-rules \
+	--with-speex \
+	--disable-static \
+	--with-theora \
+	--with-vorbis \
+	--enable-yp
 %make_build
 
 
@@ -173,6 +201,11 @@ fi
 
 
 %changelog
+* Fri Nov 02 2018 Petr Pisar <ppisar@redhat.com> - 2.4.4-1
+- 2.4.4 bump
+- License declaration corrected from "GPLv2+" to "GPLv2+ and GPLv2 and BSD and
+  MIT and FSFULLR and FSFUL"
+
 * Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.4.3-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
