@@ -42,6 +42,8 @@ Source3:	%{name}.service
 Source4:	%{name}.xml
 Source5:	status3.xsl
 
+BuildRequires:	autoconf
+BuildRequires:	automake
 BuildRequires:	coreutils
 BuildRequires:	findutils
 BuildRequires:	gcc
@@ -95,6 +97,7 @@ This package contains the documentation files for %{name}.
 %{_bindir}/find doc/ -type f | xargs %{__chmod} 0644
 %{__cp} -a doc/ html/
 %{_bindir}/find html/ -name 'Makefile*' | xargs %{__rm} -f
+autoreconf -f
 
 
 %build
@@ -105,7 +108,6 @@ This package contains the documentation files for %{name}.
 	--with-ogg \
 	--with-openssl \
 	--enable-shared \
-	--disable-silent-rules \
 	--with-speex \
 	--disable-static \
 	--with-theora \
@@ -206,6 +208,7 @@ fi
 - License declaration corrected from "GPLv2+" to "GPLv2+ and GPLv2 and BSD and
   MIT and FSFULLR and FSFUL"
 - Fix CVE-2018-18820 (buffer overflow in URL auth code) (#1646721)
+- Regenerate build scripts
 
 * Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.4.3-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
