@@ -205,6 +205,7 @@ fi
 - 2.4.4 bump
 - License declaration corrected from "GPLv2+" to "GPLv2+ and GPLv2 and BSD and
   MIT and FSFULLR and FSFUL"
+- Fix CVE-2018-18820 (buffer overflow in URL auth code) (#1646721)
 
 * Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.4.3-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
