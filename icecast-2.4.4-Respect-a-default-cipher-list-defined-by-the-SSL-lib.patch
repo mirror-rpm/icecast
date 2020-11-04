@@ -1,0 +1,96 @@
+From 25ba9dd91d33471d0485105ee6e5dd6d343fc8b0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Petr=20P=C3=ADsa=C5=99?= <ppisar@redhat.com>
+Date: Wed, 4 Nov 2020 11:20:19 +0100
+Subject: [PATCH] Respect a default cipher list defined by the SSL library
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Software distributions, like Fedora, set and enforce a global
+cryptographic policy
+(https://docs.fedoraproject.org/en-US/packaging-guidelines/CryptoPolicies/).
+That enables users to control a security level from one place.
+
+Overriding the default cipher list in Icecast sources undermines the
+goal.
+
+This patch removes the hard-coded cipher list from the sources.
+
+<https://bugzilla.redhat.com/show_bug.cgi?id=1645612>
+
+Signed-off-by: Petr Písař <ppisar@redhat.com>
+---
+ doc/config-file.html |  4 ++--
+ src/cfgfile.c        |  3 +--
+ src/connection.c     | 12 +++++++-----
+ 3 files changed, 10 insertions(+), 9 deletions(-)
+
+diff --git a/doc/config-file.html b/doc/config-file.html
+index 4650146..4cf0fd0 100644
+--- a/doc/config-file.html
++++ b/doc/config-file.html
+@@ -648,7 +648,7 @@ For example: <code>&lt;alias source="/foo" dest="/bar"&gt;</code></dd>
+ This is required for HTTPS support to be enabled. Please note that the user Icecast is running as must be able to read the file. Failing to ensure this will cause a “Invalid cert file” WARN message, just as if the file wasn’t there.</dd>
+     <dt>ssl-allowed-ciphers</dt>
+     <dd>This optional tag specifies the list of allowed ciphers passed on to the SSL library.
+-Icecast contains a set of defaults conforming to current best practices and you should <em>only</em> override those, using this tag, if you know exactly what you are doing.</dd>
++Icecast respects a set of defaults coming from the SSL library and you should <em>only</em> override those, using this tag, if you know exactly what you are doing.</dd>
+   </dl>
+ 
+ </div>
+@@ -738,4 +738,4 @@ These need to be valid users on the system. Icecast must be started as root for
+     </div>
+ 
+   </body>
+-</html>
+\ No newline at end of file
++</html>
+diff --git a/src/cfgfile.c b/src/cfgfile.c
+index a9df53c..b758fab 100644
+--- a/src/cfgfile.c
++++ b/src/cfgfile.c
+@@ -59,7 +59,6 @@
+ #define CONFIG_DEFAULT_GROUP NULL
+ #define CONFIG_MASTER_UPDATE_INTERVAL 120
+ #define CONFIG_YP_URL_TIMEOUT 10
+-#define CONFIG_DEFAULT_CIPHER_LIST "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:ECDHE-RSA-DES-CBC3-SHA:ECDHE-ECDSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA"
+ 
+ #ifndef _WIN32
+ #define CONFIG_DEFAULT_BASE_DIR "/usr/local/icecast"
+@@ -432,7 +431,7 @@ static void _set_defaults(ice_config_t *configuration)
+     configuration->master_password = NULL;
+     configuration->base_dir = (char *)xmlCharStrdup (CONFIG_DEFAULT_BASE_DIR);
+     configuration->log_dir = (char *)xmlCharStrdup (CONFIG_DEFAULT_LOG_DIR);
+-    configuration->cipher_list = (char *)xmlCharStrdup (CONFIG_DEFAULT_CIPHER_LIST);
++    configuration->cipher_list = NULL;
+     configuration->webroot_dir = (char *)xmlCharStrdup (CONFIG_DEFAULT_WEBROOT_DIR);
+     configuration->adminroot_dir = (char *)xmlCharStrdup (CONFIG_DEFAULT_ADMINROOT_DIR);
+     configuration->playlist_log = (char *)xmlCharStrdup (CONFIG_DEFAULT_PLAYLIST_LOG);
+diff --git a/src/connection.c b/src/connection.c
+index df85b07..8261c6f 100644
+--- a/src/connection.c
++++ b/src/connection.c
+@@ -233,13 +233,15 @@ static void get_ssl_certificate (ice_config_t *config)
+             ICECAST_LOG_ERROR("Invalid %s - Private key does not match cert public key", config->cert_file);
+             break;
+         }
+-        if (SSL_CTX_set_cipher_list(ssl_ctx, config->cipher_list) <= 0) 
+-        { 
+-            ICECAST_LOG_WARN("Invalid cipher list: %s", config->cipher_list); 
+-        } 
++        if (config->cipher_list)
++        {
++            if (SSL_CTX_set_cipher_list(ssl_ctx, config->cipher_list) <= 0)
++                ICECAST_LOG_WARN("Invalid cipher list: %s", config->cipher_list);
++            else
++                ICECAST_LOG_INFO("SSL using ciphers %s", config->cipher_list);
++        }
+         ssl_ok = 1;
+         ICECAST_LOG_INFO("SSL certificate found at %s", config->cert_file);
+-        ICECAST_LOG_INFO("SSL using ciphers %s", config->cipher_list); 
+         return;
+     } while (0);
+     ICECAST_LOG_INFO("No SSL capability on any configured ports");
+-- 
+2.25.4
+

@@ -12,7 +12,7 @@
 
 Name:		icecast
 Version:	2.4.4
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	ShoutCast compatible streaming media server
 
 # admin/xspf.xsl:	GPLv2+
@@ -41,6 +41,8 @@ Source2:	%{name}.logrotate
 Source3:	%{name}.service
 Source4:	%{name}.xml
 Source5:	status3.xsl
+# Respect a system crypto policy, bug #1645612
+Patch0:		icecast-2.4.4-Respect-a-default-cipher-list-defined-by-the-SSL-lib.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -203,6 +205,9 @@ fi
 
 
 %changelog
+* Wed Nov 04 2020 Petr Pisar <ppisar@redhat.com> - 2.4.4-6
+- Respect a system crypto policy (bug #1645612)
+
 * Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 2.4.4-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
 
