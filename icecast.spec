@@ -65,6 +65,7 @@ Requires(pre):	shadow-utils
 
 %if 0%{?with_systemd}
 BuildRequires:	systemd
+BuildRequires: make
 
 %{?systemd_requires}
 %else # 0%{?with_systemd}
