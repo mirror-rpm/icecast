@@ -49,7 +49,7 @@ BuildRequires:	automake
 BuildRequires:	coreutils
 BuildRequires:	findutils
 BuildRequires:	gcc
-BuildRequires:	automake
+BuildRequires:	make
 BuildRequires:	curl-devel >= 7.10.0
 BuildRequires:	libogg-devel >= 1.0
 BuildRequires:	libtheora-devel >= 1.0
@@ -65,7 +65,6 @@ Requires(pre):	shadow-utils
 
 %if 0%{?with_systemd}
 BuildRequires:	systemd
-BuildRequires: make
 
 %{?systemd_requires}
 %else # 0%{?with_systemd}
